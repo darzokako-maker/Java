@@ -1,0 +1,31 @@
+name: Full-Cheat-Build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+
+      - name: Build Java Module
+        run: javac HileModul.java
+
+      - name: Build C++ DLL
+        run: |
+          cl.exe /LD dllmain.cpp /I"%JAVA_HOME%\include" /I"%JAVA_HOME%\include\win32" /link /OUT:cheat.dll
+
+      - name: Upload Files
+        uses: actions/upload-artifact@v4
+        with:
+          name: SO-Hile-Paketi
+          path: |
+            cheat.dll
+            HileModul.class
+            
