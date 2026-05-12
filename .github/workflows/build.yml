@@ -1,31 +1,49 @@
-name: Full-Cheat-Build
+name: SO-Full-Project-Build
 
-on: [push]
+on: 
+  push:
+    branches: [ "main" ] # Veya senin ana dalının ismi neyse
 
 jobs:
   build:
     runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Setup JDK 8
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 1. Java Ortamını Hazırla (JDK 8 Minecraft 1.8.9 için en iyisidir)
+      - name: Set up JDK 8
         uses: actions/setup-java@v4
         with:
           java-version: '8'
           distribution: 'temurin'
 
+      # 2. Java Kodunu Derle (HileModul.java)
       - name: Build Java Module
         run: javac HileModul.java
 
+      # 3. C++ Derleyicisini (MSVC) Aktif Et
+      - name: Setup MSVC (cl.exe fix)
+        uses: ilammy/msvc-dev-cmd@v1
+
+      # 4. C++ DLL'ini Derle (Hata veren kısım burasıydı, artık düzeldi)
       - name: Build C++ DLL
         run: |
           cl.exe /LD dllmain.cpp /I"%JAVA_HOME%\include" /I"%JAVA_HOME%\include\win32" /link /OUT:cheat.dll
 
-      - name: Upload Files
+      # 5. Injector'ı Derle (Eğer klasöründe .sln veya .cpp varsa)
+      # Not: Eğer injector kodun main.cpp ise aşağıdaki satırı kullanabilirsin:
+      - name: Build Manual Map Injector
+        run: cl.exe main.cpp /FE:Injector.exe /EHsc
+
+      # 6. Tüm Dosyaları Paketle ve Sun
+      - name: Upload Final Cheat Package
         uses: actions/upload-artifact@v4
         with:
-          name: SO-Hile-Paketi
+          name: SonOyuncu-Hile-Paketi
           path: |
             cheat.dll
             HileModul.class
+            Injector.exe
             
