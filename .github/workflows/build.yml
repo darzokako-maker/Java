@@ -22,11 +22,11 @@ jobs:
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
 
-      # Hata burada çözülüyor: Tırnak işaretleri ve tam yol tanımı eklendi
+      # LNK2019 Hatasının çözümü: jvm.lib yolu ve dosyası eklendi
       - name: Build C++ DLL
         shell: cmd
         run: |
-          cl.exe /LD dllmain.cpp /I"%JAVA_HOME%\include" /I"%JAVA_HOME%\include\win32" /link /OUT:cheat.dll
+          cl.exe /LD dllmain.cpp /I"%JAVA_HOME%\include" /I"%JAVA_HOME%\include\win32" /link /LIBPATH:"%JAVA_HOME%\lib" jvm.lib /OUT:cheat.dll
 
       - name: Build Injector
         run: cl.exe main.cpp /FE:Injector.exe /EHsc
